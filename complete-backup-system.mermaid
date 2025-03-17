@@ -1,0 +1,84 @@
+%%{init: {'theme': 'neutral'}}%%
+
+flowchart TD
+    subgraph "Backup System Architecture"
+        CLI[Command Line Interface] --> Parser[Argument Parser]
+        
+        Parser -->|--archive| Monthly[Monthly Backup<br>Full Archives]
+        Parser -->|--daily| Daily[Daily Backup<br>Incremental]
+        Parser -->|--weekly| Weekly[Weekly Backup<br>Full Archives]
+        Parser -->|--par| PAR[PAR File<br>Creation]
+        Parser -->|--overall| OverallPAR[Overall PAR<br>Protection]
+        
+        subgraph "Configuration Layer"
+            Config[YAML Config Files]
+            Config --> DailyConfig[Daily Config<br>INCR Type]
+            Config --> WeeklyConfig[Weekly Config<br>FULL Type]
+            Config --> MonthlyConfig[Monthly Config<br>FULL Type]
+            Config --> GitConfig[Git Repository<br>Configuration]
+        end
+        
+        Monthly & Daily & Weekly --> GitIntegration[Git Integration<br>Commit Changes]
+        
+        GitIntegration --> BackupHandler[Backup Handler]
+        BackupHandler --> SevenZip[7-Zip Compression<br>& Encryption]
+        
+        SevenZip --> Chunks[Archive Chunks<br>1GB Each]
+        
+        Chunks --> DailyPAR[Daily PAR<br>Protection]
+        Chunks --> WeeklyPAR[Weekly PAR<br>Protection] 
+        Chunks --> MonthlyPAR[Monthly PAR<br>Protection]
+        
+        DailyPAR & WeeklyPAR & MonthlyPAR --> PAR2Strategies[PAR2 Strategy<br>Selection]
+        
+        PAR2Strategies --> SmallArchive[Small Archive<br>Direct PAR2]
+        PAR2Strategies --> MediumArchive[Medium Archive<br>Fixed Groups]
+        PAR2Strategies --> LargeArchive[Large Archive<br>Sliding Window]
+        
+        SmallArchive & MediumArchive & LargeArchive --> PAR2Files[PAR2 Protection<br>Files]
+        
+        PAR & OverallPAR --> ExistingChunks[Existing Archive<br>Chunks]
+        
+        ExistingChunks --> MonthDir["_ Month" Directory]
+        MonthDir --> PAR2Creation[PAR2 Creation<br>Process]
+        PAR2Creation --> PAR2Files
+        
+        PAR2Files --> Storage[Storage<br>Destination]
+        
+        subgraph "Logging System"
+            Logger[Setup Logging]
+            Logger --> ConsoleLog[Console Output]
+            Logger --> FileLog[Log Files]
+            Logger --> Summary[Summary<br>Statistics]
+        end
+        
+        style CLI fill:#d0e0ff,stroke:#3080ff,stroke-width:2px
+        style Parser fill:#d0e0ff,stroke:#3080ff,stroke-width:2px
+        style Monthly fill:#ffe0d0,stroke:#ff8030,stroke-width:2px
+        style Daily fill:#ffe0d0,stroke:#ff8030,stroke-width:2px
+        style Weekly fill:#ffe0d0,stroke:#ff8030,stroke-width:2px
+        style PAR fill:#ffe0d0,stroke:#ff8030,stroke-width:2px
+        style OverallPAR fill:#ffe0d0,stroke:#ff8030,stroke-width:2px
+        
+        style Config fill:#e0d0ff,stroke:#8030ff,stroke-width:2px
+        style DailyConfig fill:#e0d0ff,stroke:#8030ff,stroke-width:2px
+        style WeeklyConfig fill:#e0d0ff,stroke:#8030ff,stroke-width:2px
+        style MonthlyConfig fill:#e0d0ff,stroke:#8030ff,stroke-width:2px
+        style GitConfig fill:#e0d0ff,stroke:#8030ff,stroke-width:2px
+        
+        style GitIntegration fill:#d0ffe0,stroke:#30ff80,stroke-width:2px
+        style BackupHandler fill:#d0ffe0,stroke:#30ff80,stroke-width:2px
+        style SevenZip fill:#d0ffe0,stroke:#30ff80,stroke-width:2px
+        
+        style PAR2Strategies fill:#ffeed0,stroke:#ffaa30,stroke-width:2px
+        style SmallArchive fill:#ffeed0,stroke:#ffaa30,stroke-width:2px
+        style MediumArchive fill:#ffeed0,stroke:#ffaa30,stroke-width:2px
+        style LargeArchive fill:#ffeed0,stroke:#ffaa30,stroke-width:2px
+        
+        style Logger fill:#d0e0e0,stroke:#606060,stroke-width:2px
+        style ConsoleLog fill:#d0e0e0,stroke:#606060,stroke-width:2px
+        style FileLog fill:#d0e0e0,stroke:#606060,stroke-width:2px
+        style Summary fill:#d0e0e0,stroke:#606060,stroke-width:2px
+        
+        style Storage fill:#ffd0e0,stroke:#ff3080,stroke-width:2px
+    end
